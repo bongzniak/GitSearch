@@ -41,7 +41,7 @@ class User: NSObject, ModelType {
 
   enum CodingKeys: String, CodingKey {
     case id
-    case name
+    case name = "login"
     case avatarURL = "avatar_url"
   }
 }
