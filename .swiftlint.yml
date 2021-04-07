@@ -1,0 +1,19 @@
+disabled_rules:
+  - vertical_whitespace
+  - force_cast
+
+leading_whitespace:
+  severity: error
+
+line_length:
+  error: 99
+
+trailing_whitespace:
+  severity: error
+
+variable_name:
+  min_length:
+    warning: 2
+
+excluded:
+  - Pods
