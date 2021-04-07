@@ -32,7 +32,6 @@ target 'GitSearch' do
 
   # UI
   pod 'Texture'
-  pod 'TextureSwiftSupport'
   pod 'BonMot'
 
   # Logging
