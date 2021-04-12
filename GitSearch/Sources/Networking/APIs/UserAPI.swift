@@ -6,7 +6,7 @@ enum UserAPI {
 
 extension UserAPI: SugarTargetType {
   var baseURL: URL {
-    URL(string: "https://api.github.com/search/users")!
+    URL(string: "https://api.github.com")!
   }
 
   var headers: [String: String]? {
@@ -15,15 +15,17 @@ extension UserAPI: SugarTargetType {
 
   var route: Route {
     switch self {
-    case let .search(_, name):
-      return .get("")
+    case let .search(_, _):
+      return .get("/search/users")
     }
   }
 
   var parameters: Parameters? {
     switch self {
     case let .search(page, name):
-      return ["q": name]
+      return [
+        "q": "\(name) in:login", "page": page, "per_page": 100, "sort": "name", "order": "asc"
+      ]
     }
   }
 
