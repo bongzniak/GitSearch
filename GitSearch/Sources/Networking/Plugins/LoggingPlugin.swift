@@ -8,7 +8,7 @@ struct LoggingPlugin: PluginType {
   func willSend(_ request: RequestType, target: TargetType) {
     let headers = request.request?.allHTTPHeaderFields ?? [:]
     let url = request.request?.url?.absoluteString ?? "nil"
-    let path = url.replacingOccurrences(of: target.baseURL.urlStringValue, with: "")
+    let path = url.replacingOccurrences(of: target.baseURL.absoluteString, with: "")
     if let body = request.request?.httpBody {
       let bodyString = String(bytes: body, encoding: String.Encoding.utf8) ?? "nil"
       log.info("""

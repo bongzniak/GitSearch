@@ -7,8 +7,8 @@ import RxSwift
 
 protocol GitSearchServiceType {
   func search(page: Int, name: String) -> Single<[User]>
-  func addFavoriteUser(user: User) -> Single<Void>
-  func removeFavoriteUser(userID: Int) -> Single<Void>
+  func appendFavoriteUser(_ users: [User], target user: User) -> Single<[User]>
+  func removeFavoriteUser(_ users: [User], target user: User) -> Single<[User]>
 }
 
 final class RemoteGitSearchService: GitSearchServiceType {
@@ -20,56 +20,109 @@ final class RemoteGitSearchService: GitSearchServiceType {
   }
 
   func search(page: Int, name: String) -> Single<[User]> {
-    networking
+    guard name.isNotEmpty
+    else {
+      return Single.just([])
+    }
+
+    return networking
       .request(UserAPI.search(page: page, name: name))
       .map(UserResponse.self)
       .flatMap {
-        Single.just($0.items)
+        var users = $0.items
+
+        let localUsers = CoreDataManager.shared.getUsers()
+
+        users = users.map { user in
+          let findUser = localUsers.first { $0.id == user.id }
+          user.favorite = (findUser != nil)
+          return user
+        }
+
+        return Single.just(users)
       }
   }
 
-  func addFavoriteUser(user: User) -> Single<Void> {
-    User.event.onNext(.addFavoriteUser(user: user))
-    return .just(())
+  func appendFavoriteUser(_ users: [User], target user: User) -> Single<[User]> {
+    var result = users
+
+    if let index = users.firstIndex(where: { $0.id == user.id }) {
+      result[index].favorite = true
+    }
+
+    return .just(result)
   }
 
-  func removeFavoriteUser(userID: Int) -> Single<Void> {
-    User.event.onNext(.removeFavoriteUser(userID: userID))
-    return .just(())
+  func removeFavoriteUser(_ users: [User], target user: User) -> Single<[User]> {
+    var result = users
+
+    if let index = users.firstIndex(where: { $0.id == user.id }) {
+      result[index].favorite = false
+    }
+
+    return .just(result)
   }
 }
 
 final class LocalGitSearchService: GitSearchServiceType {
 
-  private let coreDataManager: CoreDataManager
-
-  init(coreDataManager: CoreDataManager) {
-    self.coreDataManager = coreDataManager
-  }
-
   func search(page: Int, name: String) -> Single<[User]> {
-    .just([])
+    let users = CoreDataManager.shared.getUsers()
+      .map {
+        User(id: Int($0.id), name: $0.name, avatarURLString: $0.avatarUrl, favorite: true)
+      }
+
+    return .just(users)
   }
 
-  func addFavoriteUser(user: User) -> Single<Void> {
-    coreDataManager.saveUser(
+  func appendFavoriteUser(_ users: [User], target user: User) -> Single<[User]> {
+    var result = users
+
+    if users.firstIndex(where: { $0.id == user.id }) == nil  {
+      result.append(user)
+      result = result.sorted(by: { $0.sortName < $1.sortName })
+
+      // Save CoreData
+      saveUser(users, target: user)
+    }
+
+    return .just(result)
+  }
+
+  func removeFavoriteUser(_ users: [User], target user: User) -> Single<[User]> {
+    var result = users
+
+    if let user = result.first(where: { $0.id == user.id }) {
+      result = result.filter { $0.id != user.id }
+
+      // remove CoreData
+      deleteUser(users, target: user)
+    }
+
+    return .just(result)
+  }
+
+  private func saveUser(_ users: [User], target user: User) {
+    CoreDataManager.shared.saveUser(
       id: Int64(user.id),
       name: user.name ?? "",
-      avatarUrl: user.avatarURL ?? ""
-    ) { _ in
-      User.event.onNext(.addFavoriteUser(user: user))
+      avatarUrl: user.avatarURL?.absoluteString ?? ""
+    ) { success in
+      if !success {
+        User.Event.removeFavoriteUser(user)
+        self.appendFavoriteUser(users, target: user)
+      }
     }
-
-    return .just(())
   }
 
-  func removeFavoriteUser(userID: Int) -> Single<Void> {
-    coreDataManager.deleteUser(
-      id: Int64(userID)
-    ) { _ in
-      User.event.onNext(.removeFavoriteUser(userID: userID))
+  private func deleteUser(_ users: [User], target user: User) {
+    CoreDataManager.shared.deleteUser(
+      id: Int64(user.id)
+    ) { success in
+      if !success {
+        User.Event.appendFavoriteUser(user)
+        self.removeFavoriteUser(users, target: user)
+      }
     }
-
-    return .just(())
   }
 }

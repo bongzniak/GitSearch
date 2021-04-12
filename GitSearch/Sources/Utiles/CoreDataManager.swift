@@ -11,15 +11,19 @@ class CoreDataManager {
   let appDelegate: AppDelegate? = UIApplication.shared.delegate as? AppDelegate
   lazy var context = appDelegate?.persistentContainer.viewContext
 
-  let modelName: String = "Users"
+  let entityName: String = "User"
 
   func getUsers(name: String? = nil) -> [UserCoreData] {
     var models: [UserCoreData] = []
+
+    let appDelegate: AppDelegate? = UIApplication.shared.delegate as? AppDelegate
+    let context = appDelegate?.persistentContainer.viewContext
 
     if let context = context {
       let fetchRequest = filteredRequest(with: name)
       do {
         if let fetchResult: [UserCoreData] = try context.fetch(fetchRequest) as? [UserCoreData] {
+          log.info("getUsers: \(fetchResult.count)")
           models = fetchResult
         }
       } catch let error as NSError {
@@ -36,20 +40,37 @@ class CoreDataManager {
     avatarUrl: String,
     onSuccess: @escaping (Bool) -> Void
   ) {
+    let appDelegate: AppDelegate? = UIApplication.shared.delegate as? AppDelegate
+    let context = appDelegate?.persistentContainer.viewContext
+
     if let context = context,
-       let entity = NSEntityDescription.entity(forEntityName: modelName, in: context) {
+       let entity = NSEntityDescription.entity(forEntityName: entityName, in: context) {
 
-      if let user: UserCoreData = NSManagedObject(
-        entity: entity,
-        insertInto: context
-      ) as? UserCoreData {
-        user.id = id
-        user.name = name
-        user.avatarUrl = avatarUrl
+      let fetchRequest: NSFetchRequest<NSFetchRequestResult> = filteredRequest(with: id)
 
-        contextSave { success in
-          onSuccess(success)
+      do {
+        if let results: [UserCoreData] = try context.fetch(fetchRequest) as? [UserCoreData] {
+          if results.count == 0 {
+            if let user: UserCoreData = NSManagedObject(
+              entity: entity,
+              insertInto: context
+            ) as? UserCoreData {
+              user.id = id
+              user.name = name
+              user.avatarUrl = avatarUrl
+
+              contextSave { success in
+                log.info("SaveUser: \(success)")
+                onSuccess(success)
+              }
+            }
+          } else {
+            log.info("User is Already Saved")
+          }
         }
+      } catch let error as NSError {
+        print("Could not fatch🥺: \(error), \(error.userInfo)")
+        onSuccess(false)
       }
     }
   }
@@ -60,6 +81,7 @@ class CoreDataManager {
     do {
       if let results: [UserCoreData] = try context?.fetch(fetchRequest) as? [UserCoreData] {
         if results.count != 0 {
+          log.info("deleteUser: \(results[0])")
           context?.delete(results[0])
         }
       }
@@ -76,7 +98,7 @@ class CoreDataManager {
 
 extension CoreDataManager {
   fileprivate func filteredRequest(with id: Int64) -> NSFetchRequest<NSFetchRequestResult> {
-    NSFetchRequest<NSFetchRequestResult>(entityName: modelName).then {
+    NSFetchRequest<NSFetchRequestResult>(entityName: entityName).then {
       $0.predicate = NSPredicate(format: "id = %@", NSNumber(value: id))
     }
   }
@@ -84,10 +106,11 @@ extension CoreDataManager {
   fileprivate func filteredRequest(
     with name: String? = nil
   ) -> NSFetchRequest<NSFetchRequestResult> {
-    let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: modelName).then {
-      $0.sortDescriptors = [NSSortDescriptor(key: "name", ascending: false)]
+    let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName).then {
+      $0.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
     }
-    if let name = name {
+
+    if let name = name, name.isNotEmpty {
       fetchRequest.predicate = NSPredicate(format: "name LIKE %@", name)
     }
 
@@ -95,6 +118,9 @@ extension CoreDataManager {
   }
 
   fileprivate func contextSave(onSuccess: (Bool) -> Void) {
+    let appDelegate: AppDelegate? = UIApplication.shared.delegate as? AppDelegate
+    let context = appDelegate?.persistentContainer.viewContext
+
     do {
       try context?.save()
       onSuccess(true)

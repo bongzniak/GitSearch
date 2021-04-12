@@ -21,22 +21,31 @@ class UserResponse: ModelType {
 
 class User: NSObject, ModelType {
   enum Event {
-    case addFavoriteUser(user: User)
-    case removeFavoriteUser(userID: Int)
+    case appendFavoriteUser(User)
+    case removeFavoriteUser(User)
   }
 
   var id: Int
   var name: String?
-  var avatarURL: String?
+  var avatarURL: URL?
+  var favorite: Bool = false
+
+  var sortName: String {
+    get {
+      (name ?? "").lowercased()
+    }
+  }
 
   init(
     id: Int,
     name: String?,
-    avatarURL: String?
+    avatarURLString: String?,
+    favorite: Bool = false
   ) {
     self.id = id
     self.name = name
-    self.avatarURL = avatarURL
+    avatarURL = URL(string: avatarURLString ?? "")
+    self.favorite = favorite
   }
 
   enum CodingKeys: String, CodingKey {

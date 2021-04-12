@@ -14,6 +14,7 @@ class BaseASDisplayNode: ASDisplayNode {
   var disposeBag = DisposeBag()
 
   // MARK: View Life Cycle
+
   override init() {
     super.init()
 

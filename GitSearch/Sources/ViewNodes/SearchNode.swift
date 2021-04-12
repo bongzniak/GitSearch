@@ -60,8 +60,7 @@ final class SearchNode: BaseASDisplayNode {
     backgroundColor = .white
 
     searchBar.rx.text
-      .distinctUntilChanged()
-      .debounce(.milliseconds(350), scheduler: MainScheduler.instance)
+      .debounce(.milliseconds(750), scheduler: MainScheduler.instance)
       .bind { [unowned self] text in
         delegate?.onChangeText(text: text ?? "")
       }
