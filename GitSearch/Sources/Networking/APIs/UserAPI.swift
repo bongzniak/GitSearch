@@ -24,7 +24,7 @@ extension UserAPI: SugarTargetType {
     switch self {
     case let .search(page, name):
       return [
-        "q": "\(name) in:login", "page": page, "per_page": 100, "sort": "name", "order": "asc"
+        "q": "\(name) in:login", "page": page, "per_page": 100, "sort": "login", "order": "asc"
       ]
     }
   }
