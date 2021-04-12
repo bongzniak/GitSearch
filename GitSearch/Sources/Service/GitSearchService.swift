@@ -1,7 +1,3 @@
-//
-// Created by bongzniak on 2021/04/07.
-//
-
 import Foundation
 import RxSwift
 
@@ -44,7 +40,7 @@ final class RemoteGitSearchService: GitSearchServiceType {
   }
 
   func appendFavoriteUser(_ users: [User], target user: User) -> Single<[User]> {
-    var result = users
+    let result = users
 
     if let index = users.firstIndex(where: { $0.id == user.id }) {
       result[index].favorite = true
@@ -54,7 +50,7 @@ final class RemoteGitSearchService: GitSearchServiceType {
   }
 
   func removeFavoriteUser(_ users: [User], target user: User) -> Single<[User]> {
-    var result = users
+    let result = users
 
     if let index = users.firstIndex(where: { $0.id == user.id }) {
       result[index].favorite = false
@@ -101,6 +97,8 @@ final class LocalGitSearchService: GitSearchServiceType {
 
     return .just(result)
   }
+
+  // MARK: CoreData
 
   private func saveUser(_ users: [User], target user: User) {
     CoreDataManager.shared.saveUser(

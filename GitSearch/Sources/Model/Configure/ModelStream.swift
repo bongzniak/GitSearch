@@ -1,7 +1,3 @@
-//
-// Created by bongzniak on 2021/03/15.
-//
-
 import RxSwift
 
 private var streams: [String: Any] = [:]

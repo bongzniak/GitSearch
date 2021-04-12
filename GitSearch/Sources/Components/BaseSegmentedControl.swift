@@ -1,7 +1,3 @@
-//
-// Created by bongzniak on 2021/04/10.
-//
-
 import Foundation
 import UIKit
 

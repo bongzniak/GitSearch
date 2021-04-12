@@ -1,11 +1,3 @@
-//
-//  GitSearchViewController.swift
-//  GitSearch
-//
-//  Created by bongzniak on 2021/04/07.
-//
-//
-
 import Foundation
 import UIKit
 
@@ -47,8 +39,6 @@ final class GitSearchViewController: BaseViewController, FactoryModule, View {
     }
   )
 
-  var batchContext: ASBatchContext?
-
   // MARK: Node
 
   lazy var searchNode = SearchNode()
@@ -89,7 +79,7 @@ final class GitSearchViewController: BaseViewController, FactoryModule, View {
 
     refreshControl.rx.controlEvent(.valueChanged)
       .map {
-        let name = reactor.currentState.name ?? ""
+        let name = reactor.currentState.name
         return Reactor.Action.refresh(name)
       }
       .bind(to: reactor.action)

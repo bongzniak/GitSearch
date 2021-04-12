@@ -1,11 +1,3 @@
-//
-//  ContainerViewControllerReactor.swift
-//  GitSearch
-//
-//  Created by bongzniak on 2021/04/09.
-//
-//
-
 import Foundation
 import ReactorKit
 import RxSwift

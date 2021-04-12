@@ -1,10 +1,3 @@
-//
-//  ModelType.swift
-//  MyApp
-//
-//  Created by bongzniak on 2020/12/24.
-//
-
 import Then
 
 protocol ModelType: Codable, Then {

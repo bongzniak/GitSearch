@@ -1,7 +1,3 @@
-//
-// Created by bongzniak on 2021/04/07.
-//
-
 import Foundation
 
 class UserResponse: ModelType {

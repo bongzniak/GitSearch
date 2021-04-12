@@ -1,11 +1,3 @@
-//
-//  ContainerViewControllerController.swift
-//  GitSearch
-//
-//  Created by bongzniak on 2021/04/09.
-//
-//
-
 import Foundation
 import UIKit
 
@@ -48,7 +40,7 @@ final class ContainerViewController: BaseViewController, FactoryModule, View {
   }
 
   lazy var collectionNode = ASCollectionNode(collectionViewLayout: flowLayout).then {
-    $0.view.isPagingEnabled = false
+    $0.view.isScrollEnabled = false
     $0.showsVerticalScrollIndicator = false
     $0.showsHorizontalScrollIndicator = false
     $0.backgroundColor = .clear
@@ -68,7 +60,6 @@ final class ContainerViewController: BaseViewController, FactoryModule, View {
 
     segmentedControl.delegate = self
 
-    collectionNode.delegate = self
     collectionNode.dataSource = self
   }
 
@@ -125,13 +116,6 @@ extension ContainerViewController: ASCollectionDataSource {
     })
 
     return node
-  }
-}
-
-extension ContainerViewController: ASCollectionDelegate {
-  public func scrollViewDidScroll(_ scrollView: UIScrollView) {
-//    let scrollWidth = scrollView.frame.width
-//    let index = Int(floor((scrollView.contentOffset.x - scrollWidth / 2) / scrollWidth ) + 1)
   }
 }
 

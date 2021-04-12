@@ -1,12 +1,5 @@
-//
-//  GitSearchViewReactor.swift
-//  GitSearch
-//
-//  Created by bongzniak on 2021/04/07.
-//
-//
-
 import Foundation
+
 import ReactorKit
 import RxSwift
 
@@ -22,9 +15,11 @@ final class GitSearchViewReactor: Reactor {
     case setLoading(Bool)
     case setName(String)
     case setUsers([User])
+    case setPage(Int)
   }
 
   struct State {
+    var page: Int = 1
     var isRefreshing: Bool = false
     var isLoading: Bool = false
     var users: [User] = []
@@ -48,7 +43,7 @@ final class GitSearchViewReactor: Reactor {
       let startRefreshing = Observable<Mutation>.just(.setRefreshing(true))
       let endRefreshing = Observable<Mutation>.just(.setRefreshing(false))
       let searchName = Observable<Mutation>.just(.setName(name))
-      let users = service.search(page: 0, name: name)
+      let users = service.search(page: 1, name: name)
         .asObservable()
         .map { users -> Mutation in
           .setUsers(users)
@@ -56,19 +51,20 @@ final class GitSearchViewReactor: Reactor {
 
       return .concat([startRefreshing, searchName, users, endRefreshing])
 
-    case let .loadMore:
+    case .loadMore:
       guard !currentState.isRefreshing else { return .empty() }
       guard !currentState.isLoading else { return .empty() }
 
       let startLoading = Observable<Mutation>.just(.setLoading(true))
       let endLoading = Observable<Mutation>.just(.setLoading(false))
-      let users = service.search(page: 1, name: currentState.name)
+      let users = service.search(page: currentState.page, name: currentState.name)
         .asObservable()
         .map { users -> Mutation in
           .setUsers(users)
         }
+      let nextPage = Observable<Mutation>.just(.setPage(currentState.page + 1))
 
-      return .concat([startLoading, users, endLoading])
+      return .concat([startLoading, users, nextPage, endLoading])
     }
   }
 
@@ -111,6 +107,9 @@ final class GitSearchViewReactor: Reactor {
 
     case let .setUsers(users):
       state.users = users
+
+    case let .setPage(page):
+      state.page = page
     }
 
     return state
