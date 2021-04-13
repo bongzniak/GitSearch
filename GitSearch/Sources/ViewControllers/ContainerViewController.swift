@@ -35,15 +35,13 @@ final class ContainerViewController: BaseViewController, FactoryModule, View {
     $0.minimumLineSpacing = 0
     $0.minimumInteritemSpacing = 0
     $0.scrollDirection = .horizontal
-    $0.sectionInset = .zero
-    $0.itemSize = .init(width: UIScreen.main.bounds.width, height: 670.f)
   }
 
   lazy var collectionNode = ASCollectionNode(collectionViewLayout: flowLayout).then {
     $0.view.isScrollEnabled = false
     $0.showsVerticalScrollIndicator = false
     $0.showsHorizontalScrollIndicator = false
-    $0.backgroundColor = .clear
+    $0.backgroundColor = .darkGray
   }
 
   // MARK: Initializing
@@ -59,7 +57,6 @@ final class ContainerViewController: BaseViewController, FactoryModule, View {
     super.init()
 
     segmentedControl.delegate = self
-
     collectionNode.dataSource = self
   }
 
@@ -82,7 +79,7 @@ final class ContainerViewController: BaseViewController, FactoryModule, View {
 
   override func layoutSpecThatFits(_ constrainedSize: ASSizeRange) -> ASLayoutSpec {
 
-    collectionNode.style.flexGrow = 1.0
+    collectionNode.style.flexGrow = 1.f
 
     let verticalSpec = ASStackLayoutSpec(
       direction: .vertical,
@@ -111,11 +108,12 @@ extension ContainerViewController: ASCollectionDataSource {
     _ collectionNode: ASCollectionNode,
     nodeForItemAt indexPath: IndexPath
   ) -> ASCellNode {
-    let node = ASCellNode(viewControllerBlock: { () -> GitSearchViewController in
+    ASCellNode(viewControllerBlock: { () -> GitSearchViewController in
       self.gitSearchControllers[indexPath.row]
-    })
-
-    return node
+    }).then {
+      let size = collectionNode.bounds.size
+      $0.style.preferredSize = .init(width: size.width, height: size.height - 178.f)
+    }
   }
 }
 

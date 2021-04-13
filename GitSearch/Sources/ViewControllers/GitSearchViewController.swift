@@ -152,6 +152,7 @@ final class GitSearchViewController: BaseViewController, FactoryModule, View {
 
     return ASWrapperLayoutSpec(layoutElements: [vStackLayout]).then {
       $0.style.preferredSize = constrainedSize.max
+      $0.style.flexGrow = 1.f
     }
   }
 }
