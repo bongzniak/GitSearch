@@ -2,12 +2,16 @@ import Foundation
 import RxSwift
 
 protocol GitSearchServiceType {
-  func search(page: Int, name: String) -> Single<[User]>
+  var hasSection: Bool { get }
+
+  func search(page: Int, name: String) -> Single<List<User>>
   func appendFavoriteUser(_ users: [User], target user: User) -> Single<[User]>
   func removeFavoriteUser(_ users: [User], target user: User) -> Single<[User]>
 }
 
 final class RemoteGitSearchService: GitSearchServiceType {
+
+  var hasSection = false
 
   private let networking: NetworkingProtocol
 
@@ -15,10 +19,11 @@ final class RemoteGitSearchService: GitSearchServiceType {
     self.networking = networking
   }
 
-  func search(page: Int, name: String) -> Single<[User]> {
+  func search(page: Int, name: String) -> Single<List<User>> {
     guard name.isNotEmpty
     else {
-      return Single.just([])
+      let result = List<User>(items: [], totalCount: 0)
+      return Single.just(result)
     }
 
     return networking
@@ -35,7 +40,9 @@ final class RemoteGitSearchService: GitSearchServiceType {
           return user
         }
 
-        return Single.just(users)
+        let result = List(items: users, totalCount: $0.totalCount)
+
+        return Single.just(result)
       }
   }
 
@@ -62,13 +69,17 @@ final class RemoteGitSearchService: GitSearchServiceType {
 
 final class LocalGitSearchService: GitSearchServiceType {
 
-  func search(page: Int, name: String) -> Single<[User]> {
-    let users = CoreDataManager.shared.getUsers()
+  var hasSection = true
+
+  func search(page: Int, name: String) -> Single<List<User>> {
+    let users = CoreDataManager.shared.getUsers(name: name)
       .map {
         User(id: Int($0.id), name: $0.name, avatarURLString: $0.avatarUrl, favorite: true)
       }
 
-    return .just(users)
+    let result = List<User>(items: users, totalCount: users.count)
+
+    return .just(result)
   }
 
   func appendFavoriteUser(_ users: [User], target user: User) -> Single<[User]> {

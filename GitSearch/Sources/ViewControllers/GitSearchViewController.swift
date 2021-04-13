@@ -31,10 +31,23 @@ final class GitSearchViewController: BaseViewController, FactoryModule, View {
   let userCellNodeFactory: UserCellNode.Factory
   let segmentedItem: String
 
-  lazy var dataSource = RxASCollectionSectionedReloadDataSource<SectionModel<String, User>>(
-    configureCellBlock: { (_, _, _, user) in
-      {
-        self.userCellNodeFactory.create(payload: .init(user: user))
+  var batchContext: ASBatchContext?
+
+  lazy var dataSource = RxASCollectionSectionedReloadDataSource<UserSection>(
+    configureCellBlock: { _, _, _, sectionItem in
+      switch sectionItem {
+      case let .user(item):
+        return {
+          self.userCellNodeFactory.create(payload: .init(user: item))
+        }
+      }
+    },
+    configureSupplementaryNode: { dataSource, node, kind, indexPath in
+      let sectionModel = dataSource.sectionModels[indexPath.section]
+      if sectionModel.title.isNotEmpty {
+        return SectionCellNode(title: sectionModel.title)
+      } else {
+        return ASCellNode()
       }
     }
   )
@@ -45,10 +58,15 @@ final class GitSearchViewController: BaseViewController, FactoryModule, View {
 
   let refreshControl = UIRefreshControl()
 
-  lazy var collectionViewFlowLayout = UICollectionViewFlowLayout()
+  lazy var collectionViewFlowLayout = UICollectionViewFlowLayout().then {
+    $0.sectionHeadersPinToVisibleBounds = true
+    $0.sectionInset = .init(top: 8.f, left: 0.f, bottom: 8.f, right: 0.f)
+  }
   lazy var collectionNode = ASCollectionNode(collectionViewLayout: collectionViewFlowLayout).then {
     $0.style.flexGrow = 1
-    $0.contentInset = .init(top: 0, left: 8.f, bottom: 0, right: 8.f)
+    $0.contentInset = .init(top: 0.f, left: 8.f, bottom: 0.f, right: 8.f)
+
+    $0.registerSupplementaryNode(ofKind: UICollectionView.elementKindSectionHeader)
   }
 
   // MARK: Initializing
@@ -64,6 +82,7 @@ final class GitSearchViewController: BaseViewController, FactoryModule, View {
     super.init()
 
     searchNode.delegate = self
+
     collectionNode.view.refreshControl = refreshControl
   }
 
@@ -79,8 +98,20 @@ final class GitSearchViewController: BaseViewController, FactoryModule, View {
 
     refreshControl.rx.controlEvent(.valueChanged)
       .map {
-        let name = reactor.currentState.name
-        return Reactor.Action.refresh(name)
+        Reactor.Action.refresh(reactor.currentState.name)
+      }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+
+    collectionNode.rx
+      .setDelegate(self)
+      .disposed(by: disposeBag)
+
+    collectionNode.rx.willBeginBatchFetch
+      .do(onNext: { [weak self] context in
+        self?.batchContext = context
+      }).map { _ in
+        Reactor.Action.loadMore
       }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
@@ -89,10 +120,13 @@ final class GitSearchViewController: BaseViewController, FactoryModule, View {
 
     reactor.state
       .map {
-        $0.users
+        $0.sections
       }
-      .map {
-        [SectionModel(model: "", items: $0)]
+      .map { [weak self] in
+        self?.batchContext?.completeBatchFetching(true)
+        self?.batchContext = nil
+
+        return $0
       }
       .bind(to: collectionNode.rx.items(dataSource: dataSource))
       .disposed(by: disposeBag)
@@ -132,5 +166,31 @@ extension GitSearchViewController: SearchNodeDelegate {
     Observable.just(Reactor.Action.refresh(text))
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
+  }
+}
+
+// MARK: ASCollectionDelegate
+
+extension GitSearchViewController: ASCollectionDelegate {
+  public func shouldBatchFetch(for collectionNode: ASCollectionNode) -> Bool {
+    guard let hasNext = reactor?.currentState.hasNext,
+          let isLoading = reactor?.currentState.isLoading,
+          hasNext && !isLoading
+    else {
+      return false
+    }
+
+    return batchContext == nil
+  }
+}
+
+// MARK: ASCollectionDelegateFlowLayout
+
+extension GitSearchViewController: ASCollectionDelegateFlowLayout {
+  func collectionNode(
+    _ collectionNode: ASCollectionNode,
+    sizeRangeForHeaderInSection section: Int
+  ) -> ASSizeRange {
+    ASSizeRangeUnconstrained
   }
 }

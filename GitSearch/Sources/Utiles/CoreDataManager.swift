@@ -107,7 +107,7 @@ extension CoreDataManager {
     }
 
     if let name = name, name.isNotEmpty {
-      fetchRequest.predicate = NSPredicate(format: "name LIKE %@", name)
+      fetchRequest.predicate = NSPredicate(format: "name CONTAINS[cd] %@", name)
     }
 
     return fetchRequest
