@@ -124,39 +124,30 @@ final class GitSearchViewReactor: Reactor {
       state.users = users
       state.hasNext = hasNext
       state.page = 1 + (hasNext ? 1 : 0)
-      state.sections = transformSections(state.users, includeHeader: service.hasSection)
+      state.sections = transformUsers(state.users, includeHeader: service.hasSection)
 
     case let .appendUsers(users, hasNext):
       state.users.append(contentsOf: users)
       state.hasNext = hasNext
       state.page += hasNext ? 1 : 0
-      state.sections = transformSections(state.users, includeHeader: service.hasSection)
+      state.sections = transformUsers(state.users, includeHeader: service.hasSection)
     }
     return state
   }
 }
 
 extension GitSearchViewReactor {
-  private func transformSections(_ users: [User], includeHeader: Bool) -> [UserSection] {
+
+  typealias UserGroup = [String: [User]]
+
+  private func transformUsers(_ users: [User], includeHeader: Bool) -> [UserSection] {
     includeHeader
-      ? transformUserSectionsWithHeader(users)
+      ? transformUserWithHeader(users)
       : [UserSection.user(title: "", items: users.map { UserSectionItem.user($0) })]
   }
 
-  private func transformUserSectionsWithHeader(_ users: [User]) -> [UserSection] {
-    var sectionGroup: [String: [User]] = [:]
-    users.forEach {
-      let name = $0.name ?? ""
-      let unicode = name
-        .decomposedStringWithCompatibilityMapping
-        .unicodeScalars
-        .map { String($0).uppercased() }
-        .first ?? ""
-      sectionGroup[unicode] = (sectionGroup[unicode] ?? []) + [$0]
-    }
-
-    var sections: [UserSection] = sectionGroup
-      .map {
+  private func transformUserWithHeader(_ users: [User]) -> [UserSection] {
+    groupBy(users: users).map {
         UserSection.user(
           title: "\($0.key) (\($0.value.count))",
           items: $0.value.map {
@@ -165,7 +156,23 @@ extension GitSearchViewReactor {
         )
       }
       .sorted(by: { $0.title ?? "" < $1.title ?? "" })
+  }
 
-    return sections
+  func groupBy(users: [User]) -> UserGroup {
+    var result: [String: [User]] = [:]
+    users.forEach {
+      let unicode = extractFirstUnicode($0.name ?? "")
+      result[unicode] = (result[unicode] ?? []) + [$0]
+    }
+    return result
+  }
+
+  func extractFirstUnicode(_ target: String) -> String {
+    target.decomposedStringWithCompatibilityMapping
+      .unicodeScalars
+      .map {
+      String($0).uppercased()
+    }
+      .first ?? ""
   }
 }
