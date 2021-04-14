@@ -4,16 +4,18 @@ import CoreData
 class CoreDataManager {
   static let shared: CoreDataManager = CoreDataManager()
 
-  let appDelegate: AppDelegate? = UIApplication.shared.delegate as? AppDelegate
-  lazy var context = appDelegate?.persistentContainer.viewContext
+  let appDelegate: AppDelegate?
+  let context: NSManagedObjectContext?
+
+  init() {
+    appDelegate = UIApplication.shared.delegate as? AppDelegate
+    context = appDelegate?.persistentContainer.viewContext
+  }
 
   let entityName: String = "User"
 
   func getUsers(name: String? = nil) -> [UserCoreData] {
     var models: [UserCoreData] = []
-
-    let appDelegate: AppDelegate? = UIApplication.shared.delegate as? AppDelegate
-    let context = appDelegate?.persistentContainer.viewContext
 
     if let context = context {
       let fetchRequest = filteredRequest(with: name)
@@ -36,9 +38,6 @@ class CoreDataManager {
     avatarUrl: String,
     onSuccess: @escaping (Bool) -> Void
   ) {
-    let appDelegate: AppDelegate? = UIApplication.shared.delegate as? AppDelegate
-    let context = appDelegate?.persistentContainer.viewContext
-
     if let context = context,
        let entity = NSEntityDescription.entity(forEntityName: entityName, in: context) {
 
@@ -114,9 +113,6 @@ extension CoreDataManager {
   }
 
   fileprivate func contextSave(onSuccess: (Bool) -> Void) {
-    let appDelegate: AppDelegate? = UIApplication.shared.delegate as? AppDelegate
-    let context = appDelegate?.persistentContainer.viewContext
-
     do {
       try context?.save()
       onSuccess(true)
