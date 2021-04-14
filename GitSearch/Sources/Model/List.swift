@@ -8,6 +8,6 @@ struct List<Element> {
   init(items: [Element], totalCount: Int) {
     self.items = items
     self.totalCount = totalCount
-    self.hasNext = items.count != totalCount
+    hasNext = items.count != totalCount
   }
 }

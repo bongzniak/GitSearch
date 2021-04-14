@@ -64,7 +64,7 @@ class CoreDataManager {
           }
         }
       } catch let error as NSError {
-        print("Could not fatch🥺: \(error), \(error.userInfo)")
+        print("Could not fetch🥺: \(error), \(error.userInfo)")
         onSuccess(false)
       }
     }
@@ -81,7 +81,7 @@ class CoreDataManager {
         }
       }
     } catch let error as NSError {
-      print("Could not fatch🥺: \(error), \(error.userInfo)")
+      print("Could not fetch🥺: \(error), \(error.userInfo)")
       onSuccess(false)
     }
 

@@ -35,7 +35,7 @@ final class GitSearchViewReactor: Reactor {
 
   init(service: GitSearchServiceType) {
     self.service = service
-    self.hasSection = service.hasSection
+    hasSection = service.hasSection
   }
 
   func mutate(action: Action) -> Observable<Mutation> {
