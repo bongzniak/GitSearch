@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		3E70502EDF01279374B12A10 /* SearchNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E7054CBB862AC2EAF647CD8 /* SearchNode.swift */; };
-		3E70505E5265829CD7738BF7 /* BasePageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E70564D2C2857FD073D8D9B /* BasePageViewController.swift */; };
 		3E7051382339107999F9D0BB /* BaseASDisplayNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E705DC0ADA7C40468526276 /* BaseASDisplayNode.swift */; };
 		3E70526FB09E661C9B7F272D /* UserCellNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E705F24E2D1562536E169D0 /* UserCellNode.swift */; };
 		3E7052D8F90BF6611C46A691 /* GitSearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E7053BA026AA774106A2017 /* GitSearchService.swift */; };
@@ -81,7 +80,6 @@
 		3E7053BA026AA774106A2017 /* GitSearchService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GitSearchService.swift; sourceTree = "<group>"; };
 		3E7054CBB862AC2EAF647CD8 /* SearchNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchNode.swift; sourceTree = "<group>"; };
 		3E7055B1120A1C7037C2F619 /* ModelStream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ModelStream.swift; sourceTree = "<group>"; };
-		3E70564D2C2857FD073D8D9B /* BasePageViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BasePageViewController.swift; sourceTree = "<group>"; };
 		3E70568C46B8EF0025DDCC48 /* User.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		3E70569637D83FB47319E800 /* GitSearchViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GitSearchViewController.swift; sourceTree = "<group>"; };
 		3E7059278745C668193D2834 /* ContainerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContainerViewController.swift; sourceTree = "<group>"; };
@@ -374,7 +372,6 @@
 				3E705DC0ADA7C40468526276 /* BaseASDisplayNode.swift */,
 				3E7052E8F1DC9DC8E6B4FD6B /* BaseASCellNode.swift */,
 				3E70516C9CEA3047E030548E /* BaseSegmentedControl.swift */,
-				3E70564D2C2857FD073D8D9B /* BasePageViewController.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -639,7 +636,6 @@
 				3E7055602ABC5C852A412B98 /* ContainerViewController.swift in Sources */,
 				3E705EF451AE8178B3C78D95 /* ContainerViewReactor.swift in Sources */,
 				3E705460355BAB58AC1AEDCF /* BaseSegmentedControl.swift in Sources */,
-				3E70505E5265829CD7738BF7 /* BasePageViewController.swift in Sources */,
 				3E705BD7649246C3AEB835EE /* UserCoreData.swift in Sources */,
 				3E7054B0BC284BCE03138D11 /* UserCellNodeReactor.swift in Sources */,
 				3E70565AE1375B6EE9BBF65A /* List.swift in Sources */,

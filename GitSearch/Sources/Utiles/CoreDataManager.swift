@@ -4,7 +4,7 @@ import CoreData
 class CoreDataManager {
   static let shared: CoreDataManager = CoreDataManager()
 
-  let appDelegate: AppDelegate?
+  weak var appDelegate: AppDelegate?
   let context: NSManagedObjectContext?
 
   init() {

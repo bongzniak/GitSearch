@@ -155,7 +155,7 @@ extension GitSearchViewReactor {
           }
         )
       }
-      .sorted(by: { $0.title ?? "" < $1.title ?? "" })
+      .sorted(by: { $0.title < $1.title })
   }
 
   func groupBy(users: [User]) -> UserGroup {

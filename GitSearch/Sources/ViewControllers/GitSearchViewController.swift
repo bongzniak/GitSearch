@@ -42,7 +42,7 @@ final class GitSearchViewController: BaseViewController, FactoryModule, View {
         }
       }
     },
-    configureSupplementaryNode: { dataSource, node, kind, indexPath in
+    configureSupplementaryNode: { dataSource, _, _, indexPath in
       let sectionModel = dataSource.sectionModels[indexPath.section]
       if sectionModel.title.isNotEmpty {
         return SectionCellNode(title: sectionModel.title)

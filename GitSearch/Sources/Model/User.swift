@@ -15,7 +15,7 @@ class UserResponse: ModelType {
   }
 }
 
-class User: NSObject, ModelType {
+class User: ModelType {
   enum Event {
     case appendFavoriteUser(User)
     case removeFavoriteUser(User)
@@ -27,9 +27,7 @@ class User: NSObject, ModelType {
   var favorite: Bool = false
 
   var sortName: String {
-    get {
-      (name ?? "").lowercased()
-    }
+    (name ?? "").lowercased()
   }
 
   init(

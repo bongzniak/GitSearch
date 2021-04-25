@@ -4,9 +4,7 @@ enum UserSection {
   case user(title: String, items: [UserSectionItem])
 }
 
-extension UserSection: AnimatableSectionModelType {
-
-  typealias Identity = String
+extension UserSection: SectionModelType {
 
   var identity: String {
     switch self {

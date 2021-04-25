@@ -85,7 +85,7 @@ final class LocalGitSearchService: GitSearchServiceType {
   func appendFavoriteUser(_ users: [User], target user: User) -> Single<[User]> {
     var result = users
 
-    if users.firstIndex(where: { $0.id == user.id }) == nil  {
+    if users.firstIndex(where: { $0.id == user.id }) == nil {
       result.append(user)
       result = result.sorted(by: { $0.sortName < $1.sortName })
 

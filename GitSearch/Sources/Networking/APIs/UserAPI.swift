@@ -15,7 +15,7 @@ extension UserAPI: SugarTargetType {
 
   var route: Route {
     switch self {
-    case .search(_, _):
+    case .search:
       return .get("/search/users")
     }
   }
