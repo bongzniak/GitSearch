@@ -14,6 +14,15 @@ extension AppDependency {
 
     let network = Networking(plugins: [LoggingPlugin()])
 
+    // User Cell Node
+    container.register(UserCellNode.Factory.self) { _ in
+      UserCellNode.Factory(dependency: .init(
+        reactorFactory: { (user: User) -> UserCellNodeReactor in
+          UserCellNodeReactor(user: user)
+        }
+      ))
+    }
+
     // Remote Search View Controller
     let remoteGitService = RemoteGitSearchService(networking: network)
     let remoteGitSearchViewController = GitSearchViewController(
@@ -33,15 +42,6 @@ extension AppDependency {
       ),
       payload: .init(segmentedItem: "Local")
     )
-
-    // User Cell Node
-    container.register(UserCellNode.Factory.self) { _ in
-      UserCellNode.Factory(dependency: .init(
-        reactorFactory: { (user: User) -> UserCellNodeReactor in
-          UserCellNodeReactor(user: user)
-        }
-      ))
-    }
 
     // Container View Controller
     let containerViewController = ContainerViewController(
